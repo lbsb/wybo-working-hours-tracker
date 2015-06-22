@@ -52,5 +52,5 @@ void turnOn(){
 // turn LED Off:
 void turnOff(){
   digitalWrite(ledPin, LOW);
-  Serial.println(CONST_ID+":"+CONST_TYPE+":2");
+  Serial.println(CONST_ID+":"+CONST_TYPE+":0");
 }
