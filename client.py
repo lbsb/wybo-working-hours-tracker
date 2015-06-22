@@ -6,7 +6,7 @@ CLIENT_SERIAL_BAUDRATE = 9600
 CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
 
 SERVER_IP = "127.0.0.1"
-SERVER_PORT = "9003"
+SERVER_PORT = 9003
 
 
 class Client(object):
@@ -27,7 +27,7 @@ class Client(object):
             # clean the buffer
             self._serial_port.flush()
             # get the sensor state
-            sensor_status = self._serial_port.readline().replace("\n", "")
+            sensor_status = self._serial_port.readline().replace('\r\n', '')
             # apply regex to check if portocol is respected
             if re.compile("[0-9]{2}:[0-9]{2}:[0-9]{1}").match(sensor_status):
                 # send message to the server
@@ -40,12 +40,8 @@ class Client(object):
         :return:
         """
 
-        # connect socket to the server
-        self._socket.connect((SERVER_IP, SERVER_PORT))
-        # send message
-        self._socket.sendto(message)
-        # close socket
-        self._socket.close()
+        # send message to the server
+        self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
 
     def capturePhoto(self):
         pass
