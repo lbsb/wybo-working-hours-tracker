@@ -7,7 +7,6 @@ const int ledPin =  2;      // the number of the LED pin
 // variables will change:
 int buttonState = 0;         // variable for reading the pushbutton status
 int ledState = 0;
-int currenteState = 0;
 
 void setup() {
   // initialize the LED pin as an output:
@@ -27,15 +26,20 @@ void loop(){
 
   if(ledState == HIGH){
     if (buttonState == LOW) {
-      // turn LED on:
-      digitalWrite(ledPin, LOW);
-    }
+      turnOn();
+     }
   }
   else{
-    if (buttonState == LOW) {
-      // turn LED on:
-      digitalWrite(ledPin, HIGH);
+      turnOff();
     }
   }
+}7
+
+void turnOn(){
+  digitalWrite(ledPin, HIGH);
 }
 
+
+void turnOff(){
+  digitalWrite(ledPin, LOW);
+}
