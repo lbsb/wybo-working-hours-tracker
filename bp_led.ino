@@ -22,16 +22,19 @@ void loop(){
   buttonState = digitalRead(buttonPin);
   ledState = digitalRead(ledPin);
 
+  // Wait until the button be pushed
+  while (buttonState == digitalRead(buttonPin)) { };
+
   if(ledState == HIGH){
-    if (buttonState == LOW) {     
-      // turn LED on:   
-      digitalWrite(ledPin, LOW); 
+    if (buttonState == LOW) {
+      // turn LED on:
+      digitalWrite(ledPin, LOW);
     }
   }
   else{
-    if (buttonState == LOW) {     
-      // turn LED on:   
-      digitalWrite(ledPin, HIGH); 
+    if (buttonState == LOW) {
+      // turn LED on:
+      digitalWrite(ledPin, HIGH);
     }
   }
 }
