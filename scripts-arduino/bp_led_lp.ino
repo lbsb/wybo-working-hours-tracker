@@ -31,19 +31,33 @@ void setup() {
 
 // ############## LOOP ############################
 void loop(){
-  boolean eventResult = eventButton();
+    boolean eventResult = eventButton();
 
-  switch(eventResult){
-    case EV_NONE:
-      //TODO
-      break;
-    case EV_SHORTPRESS:
-      //TODO
-      break;
-    case EV_LONGPRESS:
-      //TODO
-      break;
-  }
+    switch(eventResult){
+        case EV_NONE:
+            //TODO
+            // Ne rien faire de particulier, ou attendre la fin d'une synchronisation
+            break;
+        case EV_SHORTPRESS:
+            //TODO
+            // Allumer ou éteindre la LED
+
+            if(ledState == HIGH){
+                if (buttonState == LOW) {
+                    turnOff();
+                }
+            }
+            else{
+                if (buttonState == LOW) {
+                    turnOn();
+                }
+            }
+            break;
+        case EV_LONGPRESS:
+            //TODO
+            // Faire clignoter la LED et attendre la fin d'une synchronisation.
+            break;
+    }
 }
 
 int handle_button(){
@@ -71,25 +85,6 @@ int handle_button(){
     return event;
 }
 
-// ############ END LOOP #####################"""
-void loop(){
-  buttonState = digitalRead(buttonPin);     // read the state of the pushbutton value:
-  ledState = digitalRead(ledPin);
-
-  // Wait until the button be pushed
-  while (buttonState == digitalRead(buttonPin)) { };
-
-  if(ledState == HIGH){
-    if (buttonState == LOW) {
-      turnOff();
-    }
-  }
-  else{
-    if (buttonState == LOW) {
-      turnOn();
-    }
-  }
-}
 
 // ############## METHODES ############################
 
