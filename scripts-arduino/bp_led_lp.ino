@@ -4,6 +4,10 @@ const int LED_PIN =  2;             // the number of the LED pin
 const String CONST_ID = "01";       // the main Id
 const String CONST_TYPE = "01";     // the id of press button
 
+// ######## DEF ########
+#define LONGPRESS_LEN    25         // Min nr of loops for a long press
+#define DELAY            20         // Delay per loop in ms
+
 // ######## VAR ########
 int buttonState = 0;                // variable for reading the pushbutton status
 int ledState = 0;                   // variable for the led state
@@ -21,15 +25,15 @@ enum {
 // ######## SETUP ########
 void setup() {
     Serial.begin(9600);
-    pinMode(ledPin, OUTPUT);          // initialize the LED pin as an output:
-    pinMode(buttonPin, INPUT);        // initialize the pushbutton pin as an input:
+    pinMode(LED_PIN, OUTPUT);          // initialize the LED pin as an output:
+    pinMode(BUTTON_PIN, INPUT);        // initialize the pushbutton pin as an input:
     button_was_pressed = false;       // initialize the pushbutton to false (not pressed)
     button_pressed_counter = 0;       // initialize the pusbutton counter
 }
 
 // ######## LOOP ########
 void loop(){
-    boolean eventResult = eventButton();
+    boolean eventResult = handle_button();
 
     switch(eventResult){
         case EV_NONE:               // if nothing append
@@ -52,6 +56,8 @@ void loop(){
             //TODO : Faire clignoter la LED et attendre la fin d'une synchronisation.
             break;
     }
+
+    delay(DELAY);
 }
 
 // ####### Function ########
