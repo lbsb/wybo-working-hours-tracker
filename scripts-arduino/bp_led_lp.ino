@@ -23,10 +23,10 @@ int button_pressed_counter;     // press running duration
 
 void setup() {
   Serial.begin(9600);
-  pinMode(ledPin, OUTPUT);        // initialize the LED pin as an output:
-  pinMode(buttonPin, INPUT);      // initialize the pushbutton pin as an input:
-  button_was_pressed = false;     // initialize the pushbutton to false (not pressed)
-  button_pressed_counter = 0;     // initialize the pusbutton counter
+  pinMode(ledPin, OUTPUT);          // initialize the LED pin as an output:
+  pinMode(buttonPin, INPUT);        // initialize the pushbutton pin as an input:
+  button_was_pressed = false;       // initialize the pushbutton to false (not pressed)
+  button_pressed_counter = 0;       // initialize the pusbutton counter
 }
 
 // ######## LOOP ########
@@ -34,14 +34,11 @@ void loop(){
     boolean eventResult = eventButton();
 
     switch(eventResult){
-        case EV_NONE:
-            //TODO
-            // Ne rien faire de particulier, ou attendre la fin d'une synchronisation
+        case EV_NONE:               // if nothing append
+            //TODO : Ne rien faire de particulier, ou attendre la fin d'une synchronisation
             break;
-        case EV_SHORTPRESS:
-            //TODO
-            // Allumer ou éteindre la LED
-
+        case EV_SHORTPRESS:         // if short press
+            //TODO : Allumer ou éteindre la LED (a check)
             if(ledState == HIGH){
                 if (buttonState == LOW) {
                     turnOff();
@@ -53,9 +50,8 @@ void loop(){
                 }
             }
             break;
-        case EV_LONGPRESS:
-            //TODO
-            // Faire clignoter la LED et attendre la fin d'une synchronisation.
+        case EV_LONGPRESS:          // if long press
+            //TODO : Faire clignoter la LED et attendre la fin d'une synchronisation.
             break;
     }
 }
