@@ -1,3 +1,5 @@
+#define UBRRH
+#include "Platform.h" // Arduino symbols declarations
 
 // constants won't change. They're used here to
 // set pin numbers:
