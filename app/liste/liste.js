@@ -10,6 +10,10 @@ angular.module('myApp.liste', ['ngRoute'])
 }])
 
 .controller('View1Ctrl', [function() {
-
-
-}]);
+        //To get the data of the json file
+        $http.get('data/logs.json').success(function(data,status){
+            $scope.articles=data;
+            $scope.status=status;
+        }).error(function(data, status) { $scope.data = data || "Request failed"; $scope.status = status;
+        });
+    }]);

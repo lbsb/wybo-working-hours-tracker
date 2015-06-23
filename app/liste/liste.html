@@ -26,18 +26,13 @@
                     <tr class="active"><th>Date</th><th>Heure de début</th><th>Heure de fin</th></tr>
                     </thead>
                     <tbody>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
-                    <tr><td>Mardi 23 juin 2015</td><td>23h54</td><td>23h59</td></tr>
+                        <tr ng-repeat="item in items.items">
+                            <td>{{item.ip}}</td>
+                            <td>{{item.date}}</td>
+                            <td>{{item.dateDebut}}</td>
+                            <td>{{item.dateFin}}</td>
+                            <td>{{item.temps}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
