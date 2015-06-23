@@ -11,7 +11,7 @@ CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
 CLIENT_SERIAL_RECONNECTION_DELAY = 5
 
 # Server settings
-SERVER_IP = "127.0.0.1"
+SERVER_IP = "172.16.104.31"
 SERVER_PORT = 9003
 
 # Logger settings
@@ -54,8 +54,9 @@ class Client(object):
                 # try to reconnect
                 self._serial_port.open()
                 self._logger.debug("Successfuly reconnected")
-
-            except OSError:
+                self._send_message_to_server("01:01:0")
+            except serial.SerialException as msg:
+                self._logger.error("Reconnection failed : %s", msg)
                 # short delay between 2 tentatives
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
 
