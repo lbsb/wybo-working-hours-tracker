@@ -1,6 +1,6 @@
 // #### Constantes ###
-const int buttonPin = 3;        // the number of the pushbutton pin
-const int ledPin =  2;          // the number of the LED pin
+const int BUTTON_PIN = 3;        // the number of the pushbutton pin
+const int LED_PIN =  2;          // the number of the LED pin
 const String CONST_ID = "01";   // the main Id
 const String CONST_TYPE = "01"; // the id of press button
 
@@ -12,8 +12,8 @@ int currenteState = 0;
 
 enum {
   EV_NONE=0,
-  EV_SHORTPRESS,
-  EV_LONGPRESS
+  EV_SHORTPRESS=1,
+  EV_LONGPRESS=2
 };
 
 boolean button_was_pressed;     // previous state
@@ -46,6 +46,32 @@ void loop(){
   }
 }
 
+int handle_button(){
+    int event;
+    int button_now_pressed = !digitalRead(BUTTON_PIN); // pin low -> pressed
+
+    if (!button_now_pressed && button_was_pressed) {
+        if (button_pressed_counter < LONGPRESS_LEN){
+            event = EV_SHORTPRESS;
+        }
+        else{
+            event = EV_LONGPRESS;
+        }
+    }
+    else{
+            event = EV_NONE;
+    }
+
+    if (button_now_pressed)
+        ++button_pressed_counter;
+    else
+        button_pressed_counter = 0;
+
+    button_was_pressed = button_now_pressed;
+    return event;
+}
+
+// ############ END LOOP #####################"""
 void loop(){
   buttonState = digitalRead(buttonPin);     // read the state of the pushbutton value:
   ledState = digitalRead(ledPin);
@@ -69,12 +95,12 @@ void loop(){
 
 // turn LED on:
 void turnOn(){
-   digitalWrite(ledPin, HIGH);
+   digitalWrite(LED_PIN, HIGH);
    Serial.println(CONST_ID+":"+CONST_TYPE+":1");
 }
 
 // turn LED Off:
 void turnOff(){
-  digitalWrite(ledPin, LOW);
+  digitalWrite(LED_PIN, LOW);
   Serial.println(CONST_ID+":"+CONST_TYPE+":0");
 }
