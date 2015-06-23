@@ -23,13 +23,15 @@
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
-                    <tr class="active"><th>Date</th><th>Heure de début</th><th>Heure de fin</th></tr>
+                    <tr class="active"><th>Id</th><th>IP</th><th>Date Debut</th><th>Date Fin</th><th>Temps</th></tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="item in items">
-                            <td>{{item.ip}}</td>
                             <td>{{item.id}}</td>
-                            <td>{{item.date}}</td>
+                            <td>{{item.ip}}</td>
+                            <td>{{item.dateDebut}}</td>
+                            <td>{{item.dateFin}}</td>
+                            <td>{{item.temps}}</td>
 
                         </tr>
                     </tbody>
