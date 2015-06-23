@@ -6,9 +6,9 @@ import logging
 
 # client serial port settings
 CLIENT_SERIAL_BAUDRATE = 9600
-CLIENT_SERIAL_PORT = "/dev/cu.usbmodem2041"
+CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
 # waiting time between 2 tentatives of reconnection
-CLIENT_SERIAL_RECONNECTION_DELAY = 2
+CLIENT_SERIAL_RECONNECTION_DELAY = 5
 
 # Server settings
 SERVER_IP = "127.0.0.1"
@@ -36,9 +36,12 @@ class Client(object):
         # init logger
         self._logger = logging.getLogger(LOG_FILE_NAME)
         file_handler = logging.FileHandler(LOG_FILE_LOCATION + LOG_FILE_NAME + ".log")
-        logger_formatter = logging.Formatter("[%(asctime)s] - %(name)s - %(levelname)s - %(message)s", "%m/%d/%Y %I:%M:%S %p")
+        file_handler.setLevel(logging.DEBUG)
+        logger_formatter = logging.Formatter("%(asctime)s - %(name)s - "
+                                             "%(levelname)s - %(message)s", "%m/%d/%Y %I:%M:%S %p")
         file_handler.setFormatter(logger_formatter)
         self._logger.addHandler(file_handler)
+        self._logger.setLevel(logging.DEBUG)
 
     def _reconnect_serial_port(self):
         """
@@ -65,10 +68,9 @@ class Client(object):
         Z : sensor value
         """
 
-        # listen on the serial port..
+        self._logger.debug("Listening on serial port : %s", CLIENT_SERIAL_PORT)
+        # listening on the serial port..
         while (True):
-
-            self._logger.debug("Listening on serial port : %s", CLIENT_SERIAL_PORT)
             try:
                 # get the sensor status on serial port
                 sensor_status = self._serial_port.readline().replace('\r\n', '')
@@ -84,7 +86,7 @@ class Client(object):
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
                 self._send_message_to_server("01:01:2")
-                self._logger.debug("Disconnected status has been sent to the server", CLIENT_SERIAL_PORT)
+                self._logger.debug("Disconnected status has been sent to the server")
                 self._reconnect_serial_port()
 
     def _send_message_to_server(self, message):
@@ -97,4 +99,4 @@ class Client(object):
         """
 
         self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
-        self._logger.debug("message : \"%s\" has been sent to %s:%d", (message, SERVER_IP, SERVER_PORT))
+        self._logger.debug("message : \"%s\" has been sent to %s:%d", message, SERVER_IP, SERVER_PORT)
