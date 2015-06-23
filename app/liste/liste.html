@@ -26,12 +26,11 @@
                     <tr class="active"><th>Date</th><th>Heure de début</th><th>Heure de fin</th></tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="item in items.items">
+                        <tr ng-repeat="item in items">
                             <td>{{item.ip}}</td>
+                            <td>{{item.id}}</td>
                             <td>{{item.date}}</td>
-                            <td>{{item.dateDebut}}</td>
-                            <td>{{item.dateFin}}</td>
-                            <td>{{item.temps}}</td>
+
                         </tr>
                     </tbody>
                 </table>

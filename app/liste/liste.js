@@ -9,11 +9,12 @@ angular.module('myApp.liste', ['ngRoute'])
   });
 }])
 
-.controller('View1Ctrl', [function() {
+.controller('View1Ctrl', ['$scope','$http', function($scope,$http) {
         //To get the data of the json file
         $http.get('data/logs.json').success(function(data,status){
-            $scope.articles=data;
+            $scope.items=data;
             $scope.status=status;
         }).error(function(data, status) { $scope.data = data || "Request failed"; $scope.status = status;
         });
     }]);
+
