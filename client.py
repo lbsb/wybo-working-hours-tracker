@@ -53,10 +53,11 @@ class Client(object):
                 self._serial_port = serial.Serial(port = CLIENT_SERIAL_PORT, baudrate = CLIENT_SERIAL_BAUDRATE)
                 self._logger.info("Arduino connected")
             except OSError as msg:
-                self._logger.error("Connection failed : %s", msg)
+                self._logger.debug("Connection failed : %s", msg)
             except serial.SerialException as msg:
-                self._logger.error("Connection failed : %s", msg)
+                self._logger.debug("Connection failed : %s", msg)
             finally:
+
                 # short delay between 2 tentatives
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
 
@@ -73,9 +74,9 @@ class Client(object):
                 self._logger.info("Arduino reconnected")
                 self._send_message_to_server("01:01:0")
             except OSError as msg:
-                self._logger.error("Reconnection failed : %s", msg)
+                self._logger.debug("Reconnection failed : %s", msg)
             except serial.SerialException as msg:
-                self._logger.error("Reconnection failed : %s", msg)
+                self._logger.debug("Reconnection failed : %s", msg)
             finally:
                 # short delay between 2 tentatives
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
@@ -96,7 +97,7 @@ class Client(object):
         try:
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except socket.error as msg:
-            self._logger.error("Can't init socket : %s", msg)
+            self._logger.debug("Can't init socket : %s", msg)
 
         self._logger.debug("Listening on serial port : %s", CLIENT_SERIAL_PORT)
         # listening on the serial port..
