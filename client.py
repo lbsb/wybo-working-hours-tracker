@@ -55,6 +55,8 @@ class Client(object):
                 self._serial_port.open()
                 self._logger.debug("Successfuly reconnected")
                 self._send_message_to_server("01:01:0")
+            except OSError as msg:
+                self._logger.error("Reconnection failed : %s", msg)
             except serial.SerialException as msg:
                 self._logger.error("Reconnection failed : %s", msg)
                 # short delay between 2 tentatives
