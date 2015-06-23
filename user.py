@@ -1,0 +1,11 @@
+class User(object):
+    _id = None
+    _first_name = None
+    _last_name = None
+    _email = None
+
+    def __init__(self, id = "", first_name = "", last_name = "", email = ""):
+        self._id = id
+        self._first_name = first_name
+        self._last_name = last_name
+        self._email = email
