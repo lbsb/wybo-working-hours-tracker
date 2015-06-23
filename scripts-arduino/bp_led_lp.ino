@@ -1,32 +1,30 @@
-// ######## Constantes ########
-const int BUTTON_PIN = 3;        // the number of the pushbutton pin
-const int LED_PIN =  2;          // the number of the LED pin
-const String CONST_ID = "01";   // the main Id
-const String CONST_TYPE = "01"; // the id of press button
+// ######## CONST ########
+const int BUTTON_PIN = 3;           // the number of the pushbutton pin
+const int LED_PIN =  2;             // the number of the LED pin
+const String CONST_ID = "01";       // the main Id
+const String CONST_TYPE = "01";     // the id of press button
 
+// ######## VAR ########
+int buttonState = 0;                // variable for reading the pushbutton status
+int ledState = 0;                   // variable for the led state
+int currenteState = 0;              // temp variable
+int button_pressed_counter;         // press running duration
+boolean button_was_pressed;         // previous state
 
-// variables will change:
-int buttonState = 0;            // variable for reading the pushbutton status
-int ledState = 0;
-int currenteState = 0;
-
+// ######## ENUM ########
 enum {
-  EV_NONE=0,
-  EV_SHORTPRESS=1,
-  EV_LONGPRESS=2
+    EV_NONE=0,
+    EV_SHORTPRESS=1,
+    EV_LONGPRESS=2
 };
 
-boolean button_was_pressed;     // previous state
-int button_pressed_counter;     // press running duration
-
 // ######## SETUP ########
-
 void setup() {
-  Serial.begin(9600);
-  pinMode(ledPin, OUTPUT);          // initialize the LED pin as an output:
-  pinMode(buttonPin, INPUT);        // initialize the pushbutton pin as an input:
-  button_was_pressed = false;       // initialize the pushbutton to false (not pressed)
-  button_pressed_counter = 0;       // initialize the pusbutton counter
+    Serial.begin(9600);
+    pinMode(ledPin, OUTPUT);          // initialize the LED pin as an output:
+    pinMode(buttonPin, INPUT);        // initialize the pushbutton pin as an input:
+    button_was_pressed = false;       // initialize the pushbutton to false (not pressed)
+    button_pressed_counter = 0;       // initialize the pusbutton counter
 }
 
 // ######## LOOP ########
@@ -57,7 +55,6 @@ void loop(){
 }
 
 // ####### Function ########
-
 int handle_button(){
     int event;
     int button_now_pressed = !digitalRead(BUTTON_PIN); // pin low -> pressed
@@ -85,7 +82,6 @@ int handle_button(){
 
 
 // ######## METHODES ########
-
 // turn LED on:
 void turnOn(){
     digitalWrite(LED_PIN, HIGH);
