@@ -31,8 +31,23 @@ void setup() {
 
 // ############## LOOP ############################
 void loop(){
-  // read the state of the pushbutton value:
-  buttonState = digitalRead(buttonPin);
+  boolean eventResult = eventButton();
+
+  switch(eventResult){
+    case EV_NONE:
+      //TODO
+      break;
+    case EV_SHORTPRESS:
+      //TODO
+      break;
+    case EV_LONGPRESS:
+      //TODO
+      break;
+  }
+}
+
+void loop(){
+  buttonState = digitalRead(buttonPin);     // read the state of the pushbutton value:
   ledState = digitalRead(ledPin);
 
   // Wait until the button be pushed
