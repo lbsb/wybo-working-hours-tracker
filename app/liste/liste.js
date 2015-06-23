@@ -11,4 +11,5 @@ angular.module('myApp.liste', ['ngRoute'])
 
 .controller('View1Ctrl', [function() {
 
+
 }]);
