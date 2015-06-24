@@ -59,10 +59,10 @@ class Client(object):
         self._logger.setLevel(logging.DEBUG)
         # init socket connection
         self._init_socket()
-        # init user
-        self._read_user_settings()
         # init serial connection
         self._init_serial_port()
+        # read user settings
+        self._read_user_settings()
 
     def _read_user_settings(self):
         """
@@ -87,6 +87,7 @@ class Client(object):
         """
         Init user settings by asking to user enter his information
         """
+
 
         # send message to arduino to bling the LED
         self._send_message_to_arduino("3")
@@ -199,6 +200,9 @@ class Client(object):
             finally:
                 # short delay between 2 tentatives
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
+
+        # short delay before (read/write) on serial port
+        time.sleep(0.1)
 
     def _reconnect_serial_port(self):
         """
