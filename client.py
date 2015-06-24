@@ -80,6 +80,7 @@ class Client(object):
             # set user information in current user
             self._user = User(user_json["id"], user_json["first_name"], user_json["last_name"], user_json["email"])
         except IOError:
+            self._logger.info("No user found. Please enter your information to create one")
             self._init_user_settings()
 
     def _init_user_settings(self):
@@ -88,8 +89,6 @@ class Client(object):
         """
 
         user = User()
-        self._logger.info("Create new user")
-        self._logger.info("Please enter your information.")
         sys.stdout.write("first name: ")
         user._first_name = sys.stdin.readline()
         sys.stdout.write("last name: ")
@@ -101,38 +100,40 @@ class Client(object):
         # save user settings
         if user._id != 0:
             self._save_user_settings(user)
-            self._logger.info("Successful synchronization")
+            self._logger.debug("Successful synchronization")
+            self._logger.info("User successfully created")
         else:
-            self._logger.info("Synchronisation failed. Please check your internet and serial connection. and retry")
+            self._logger.info("User creation failed. Please check your internet and serial connection. and retry")
 
     def _sync_user_settings(self, user):
         """
         Send user settings to server and get back a generated id
         """
 
+        self._logger.debug("Starting synchronization...")
         # serialize user object
         data_user = pickle.dumps(user, -1)
         # send init protocol
         self._socket.sendto("00:4", (SERVER_IP, SERVER_PORT))
-        self._logger.debug("message : \"00:4\" has been sent to %s:%d", SERVER_IP, SERVER_PORT)
+        self._logger.debug("Syncronisation message : \"00:4\" has been sent to server (%s:%d)", SERVER_IP, SERVER_PORT)
 
-        # wait responsove from server
+        # wait response from server
         data = self._socket.recv(1024)
-        self._logger.debug("data : %s has been received from server", data)
+        self._logger.debug("Confirmation message : \"%s\" has been received from server (%s:%d)", data, SERVER_IP, SERVER_PORT)
 
         if re.compile("4").match(data.replace("\n", "")):
             # send user to server
             self._socket.sendto(data_user, (SERVER_IP, SERVER_PORT))
-            self._logger.debug("data : %s has been send from server", data_user)
+            self._logger.debug("User information has been send from server (%s:%d)", SERVER_IP, SERVER_PORT)
             # receive id
             data_user_id = self._socket.recv(1024)
-            self._logger.debug("Id : %s has been send from server", data_user_id)
+            self._logger.debug("Id : \"%s\" has been send from server (%s:%d)", data_user_id, SERVER_IP, SERVER_PORT )
 
             # format user id
             data_user_id = data_user_id.replace("\n", "")
             # send confirmation to the server by sending the same user id
             self._socket.sendto(data_user_id, (SERVER_IP, SERVER_PORT))
-            self._logger.debug("Confirmation id : \"%s\" sent to server", data_user_id)
+            self._logger.debug("Confirmation id : \"%s\" sent to server (%s:%d)", data_user_id, SERVER_IP, SERVER_PORT)
 
             return int(data_user_id)
 
@@ -152,7 +153,7 @@ class Client(object):
                 'email': user._email.replace("\n", "")
             }, outfile, indent = 4, encoding = 'utf-8')
 
-        self._logger.debug("User settings has been saved in %s", (USER_FILE_LOCATION + USER_FILE_NAME))
+        self._logger.debug("User settings has been saved in \"%s\"", (USER_FILE_LOCATION + USER_FILE_NAME))
 
         # set user information in current user
         self._user = user
