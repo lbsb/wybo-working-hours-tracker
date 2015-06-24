@@ -198,7 +198,7 @@ class Client(object):
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
 
         # short delay before (read/write) on serial port
-        time.sleep(0.1)
+        time.sleep(1)
 
     def _reconnect_serial_port(self):
         """
