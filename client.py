@@ -6,6 +6,7 @@ import re
 import time
 import logging
 import json
+import hashlib
 import sys
 import cPickle as pickle
 from user import User
@@ -16,7 +17,7 @@ DATA_FILE_NAME = "user.json"
 
 # Client serial port settings
 CLIENT_SERIAL_BAUDRATE = 9600
-CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
+CLIENT_SERIAL_PORT = "/dev/cu.usbmodem2041"
 # waiting time between 2 tentatives of reconnection
 CLIENT_SERIAL_RECONNECTION_DELAY = 1
 
@@ -66,6 +67,23 @@ class Client(object):
         # read user settings
         self._read_user_settings()
 
+    def _is_user_logged(self):
+        """
+        Check if user is logged
+        """
+
+        try:
+            with open(DATA_FILE_LOCATION + DATA_FILE_NAME) as file:
+                user = json.load(file)
+                # set user information in current user
+                if user["uuid"] != "":
+                    return True
+
+            return False
+        except IOError:
+            return False
+
+
     def _read_user_settings(self):
         """
         Get user settings from file (JSON)
@@ -83,34 +101,35 @@ class Client(object):
             self._user = User()
             self._user._uuid = user_json["uuid"]
         except IOError:
-            self._logger.info("No user found. Please enter your information to create one")
-            self._init_user_settings()
+            while not self._is_user_logged():
+                self._login_user()
 
-    def _init_user_settings(self):
+    def _login_user(self):
         """
-        Init user settings by asking to user enter his information
+        Ask user login
         """
-
 
         # send message to arduino to bling the LED
         self._send_message_to_arduino("3")
-
+        self._logger.info("Please enter your email and password to login")
         user = User()
-        sys.stdout.write("first name: ")
-        user._first_name = sys.stdin.readline()
-        sys.stdout.write("last name: ")
-        user._last_name = sys.stdin.readline()
         sys.stdout.write("email: ")
         user._email = sys.stdin.readline()
+        sys.stdout.write("password: ")
+        password = sys.stdin.readline()
+
+        # hash password
+        user._password = hashlib.sha256(password).hexdigest()
         # sync user settings and get back generated id
         user._uuid = self._sync_user_settings(user)
         # save user settings
         if user._uuid != "":
             self._save_user_settings(user)
-            self._logger.debug("Successful synchronization")
-            self._logger.info("User successfully created")
-        else:
-            self._logger.info("User creation failed. Please check your internet and serial connection. and retry")
+            self._logger.info("Login successful")
+        elif user._uuid == "":
+            self._logger.info("Login failed")
+        elif user._uuid == 0:
+            self._logger.info("Login failed. Please check your internet and/or serial connection and retry")
 
         # send message to arduino to put off LED
         self._send_message_to_arduino("4")
@@ -128,28 +147,30 @@ class Client(object):
         Send user settings to server and get back a generated id
         """
 
-        self._logger.debug("Starting synchronization...")
-        # serialize user object
-        data_user = pickle.dumps(user, -1)
+        self._logger.debug("Login in waiting...")
         # send init protocol
         self._socket.sendto("3", (SERVER_IP, SERVER_PORT))
-        self._logger.debug("Syncronisation message : \"3\" has been sent to server (%s:%d)", SERVER_IP, SERVER_PORT)
+        self._logger.debug("Message : \"3\" has been sent to server (%s:%d)", SERVER_IP, SERVER_PORT)
 
         # wait response from server
         data = self._socket.recv(1024)
-        self._logger.debug("Confirmation message : \"%s\" has been received from server (%s:%d)", data, SERVER_IP, SERVER_PORT)
+        self._logger.debug("Message : \"%s\" has been received from server (%s:%d)", data, SERVER_IP, SERVER_PORT)
 
         if re.compile("3").match(data.replace("\n", "")):
+            # serialize user object
+            data_user = pickle.dumps(user, -1)
             # send user to server
             self._socket.sendto(data_user, (SERVER_IP, SERVER_PORT))
             self._logger.debug("User information has been send from server (%s:%d)", SERVER_IP, SERVER_PORT)
+
             # receive uuid
             data_user_uuid = self._socket.recv(1024)
             self._logger.debug("UUID : \"%s\" has been send from server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
 
-            # send confirmation to the server by sending the same user uuid
-            self._socket.sendto(data_user_uuid, (SERVER_IP, SERVER_PORT))
-            self._logger.debug("Confirmation id : \"%s\" sent to server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
+            if data_user_uuid != "":
+                # send confirmation to the server by sending the same user uuid
+                self._socket.sendto(data_user_uuid, (SERVER_IP, SERVER_PORT))
+                self._logger.debug("Confirmation id : \"%s\" sent to server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
 
             return data_user_uuid
 
@@ -242,7 +263,7 @@ class Client(object):
                 if re.compile("[0-1]{1}").match(sensor_status):
                     self._send_sensor_status_to_server(sensor_status)
                 elif re.compile("[3]{1}").match(sensor_status):
-                    self._init_user_settings()
+                    self._login_user()
 
             # handle disconnection
             except IOError, e:
