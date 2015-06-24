@@ -8,15 +8,12 @@ const String CONST_TYPE = "01";     // the id of press button
 #define LONGPRESS_LEN    25         // Min nr of loops for a long press
 #define DELAY            20        // Delay per loop in ms
 
-
 // ######## VAR ########
 int buttonState = 0;                // variable for reading the pushbutton status
 int ledState = 0;                   // variable for the led state
 int currenteState = 0;              // temp variable
 int button_pressed_counter;         // press running duration
 boolean button_was_pressed;         // previous state
-
-
 
 // ######## ENUM ########
 enum {
@@ -41,7 +38,8 @@ void loop(){
     switch(eventResult){
         case EV_NONE:               // if nothing append
             //TODO : Ne rien faire de particulier, ou attendre la fin d'une synchronisation
-            
+            event = EV_LONGPRESS;
+            Serial.println("waiting for signal...");
             break;
         case EV_SHORTPRESS:         // if short press
             //TODO : Allumer ou éteindre la LED (a check)
@@ -71,7 +69,6 @@ int handle_button(){
         }
         else{
             event = EV_LONGPRESS;
-            
             Serial.println(CONST_ID+":"+CONST_TYPE+":4");
         }
     }
@@ -84,12 +81,10 @@ int handle_button(){
     else{
         button_pressed_counter = 0; 
     }
-        
 
     button_was_pressed = button_now_pressed;
     return event;
 }
-
 
 // ######## METHODES ########
 // turn LED on:
