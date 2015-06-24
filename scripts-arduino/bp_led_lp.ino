@@ -124,4 +124,5 @@ void turnBlink(){
             break;  
         }
     }
+    isSync = false;
 }
