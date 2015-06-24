@@ -43,7 +43,8 @@ class Client(object):
         Constructor
         """
 
-
+        # init log folder
+        self._init_log_folder()
         # init logger (console and file)
         self._logger = logging.getLogger(LOG_FILE_NAME)
         file_handler = logging.FileHandler(LOG_FILE_LOCATION + LOG_FILE_NAME + ".log")
@@ -277,3 +278,12 @@ class Client(object):
 
         # short delay between two tentatives
         time.sleep(SERVER_PING_DELAY)
+
+    def _init_log_folder(self):
+        """
+        Create data file if it doesn't exist
+        """
+
+        # create folder if it doesn't exist
+        if not os.path.isdir(LOG_FILE_LOCATION):
+            os.makedirs(LOG_FILE_LOCATION)
