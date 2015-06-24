@@ -78,7 +78,8 @@ class Client(object):
             # read file
             user_json = json.load(user_file)
             # set user information in current user
-            self._user = User(user_json["id"], user_json["first_name"], user_json["last_name"], user_json["email"])
+            self._user = User()
+            self._user._uuid = user_json["uuid"]
         except IOError:
             self._logger.info("No user found. Please enter your information to create one")
             self._init_user_settings()
@@ -100,9 +101,9 @@ class Client(object):
         sys.stdout.write("email: ")
         user._email = sys.stdin.readline()
         # sync user settings and get back generated id
-        user._id = self._sync_user_settings(user)
+        user._uuid = self._sync_user_settings(user)
         # save user settings
-        if user._id != 0:
+        if user._uuid != "":
             self._save_user_settings(user)
             self._logger.debug("Successful synchronization")
             self._logger.info("User successfully created")
@@ -129,28 +130,26 @@ class Client(object):
         # serialize user object
         data_user = pickle.dumps(user, -1)
         # send init protocol
-        self._socket.sendto("00:4", (SERVER_IP, SERVER_PORT))
-        self._logger.debug("Syncronisation message : \"00:4\" has been sent to server (%s:%d)", SERVER_IP, SERVER_PORT)
+        self._socket.sendto("3", (SERVER_IP, SERVER_PORT))
+        self._logger.debug("Syncronisation message : \"3\" has been sent to server (%s:%d)", SERVER_IP, SERVER_PORT)
 
         # wait response from server
         data = self._socket.recv(1024)
         self._logger.debug("Confirmation message : \"%s\" has been received from server (%s:%d)", data, SERVER_IP, SERVER_PORT)
 
-        if re.compile("4").match(data.replace("\n", "")):
+        if re.compile("3").match(data.replace("\n", "")):
             # send user to server
             self._socket.sendto(data_user, (SERVER_IP, SERVER_PORT))
             self._logger.debug("User information has been send from server (%s:%d)", SERVER_IP, SERVER_PORT)
-            # receive id
-            data_user_id = self._socket.recv(1024)
-            self._logger.debug("Id : \"%s\" has been send from server (%s:%d)", data_user_id, SERVER_IP, SERVER_PORT )
+            # receive uuid
+            data_user_uuid = self._socket.recv(1024)
+            self._logger.debug("UUID : \"%s\" has been send from server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT )
 
-            # format user id
-            data_user_id = data_user_id.replace("\n", "")
-            # send confirmation to the server by sending the same user id
-            self._socket.sendto(data_user_id, (SERVER_IP, SERVER_PORT))
-            self._logger.debug("Confirmation id : \"%s\" sent to server (%s:%d)", data_user_id, SERVER_IP, SERVER_PORT)
+            # send confirmation to the server by sending the same user uuid
+            self._socket.sendto(data_user_uuid, (SERVER_IP, SERVER_PORT))
+            self._logger.debug("Confirmation id : \"%s\" sent to server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
 
-            return int(data_user_id)
+            return data_user_uuid
 
         return 0
 
@@ -162,10 +161,7 @@ class Client(object):
         # save user settings in json file
         with open(USER_FILE_LOCATION + USER_FILE_NAME, "w") as outfile:
             json.dump({
-                'id': user._id,
-                'first_name': user._first_name.replace("\n", ""),
-                'last_name': user._last_name.replace("\n", ""),
-                'email': user._email.replace("\n", "")
+                'uuid': user._uuid
             }, outfile, indent = 4, encoding = 'utf-8')
 
         self._logger.debug("User settings has been saved in \"%s\"", (USER_FILE_LOCATION + USER_FILE_NAME))
@@ -259,14 +255,14 @@ class Client(object):
 
     def _send_sensor_status_to_server(self, sensor_value):
         """
-        Send sensor status to server (protocol : XX:Z)
-        XX: user id
-        Z : sensor value
-        :param message:
+        Send sensor status to server (protocol : uuid:sensor_value)
+        :param sensor_value:
         """
 
-        self._socket.sendto(sensor_value, (SERVER_IP, SERVER_PORT))
-        self._logger.debug("message : \"%s\" has been sent to %s:%d", sensor_value, SERVER_IP, SERVER_PORT)
+        # concat uuid with sensor value to be identified on server
+        data_sensor = self._user._uuid + ":" + sensor_value
+        self._socket.sendto(data_sensor, (SERVER_IP, SERVER_PORT))
+        self._logger.debug("message : \"%s\" has been sent to %s:%d", data_sensor, SERVER_IP, SERVER_PORT)
 
     def _check_server_connection(self):
         """
