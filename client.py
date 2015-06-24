@@ -17,7 +17,7 @@ USER_FILE_NAME = "user.json"
 
 # Client serial port settings
 CLIENT_SERIAL_BAUDRATE = 9600
-CLIENT_SERIAL_PORT = "/dev/cu.usbmodem2041"
+CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
 # waiting time between 2 tentatives of reconnection
 CLIENT_SERIAL_RECONNECTION_DELAY = 1
 
@@ -88,6 +88,9 @@ class Client(object):
         Init user settings by asking to user enter his information
         """
 
+        # send message to arduino to bling the LED
+        self._send_message_to_arduino("3")
+
         user = User()
         sys.stdout.write("first name: ")
         user._first_name = sys.stdin.readline()
@@ -105,9 +108,8 @@ class Client(object):
         else:
             self._logger.info("User creation failed. Please check your internet and serial connection. and retry")
 
-        # send end message to arduino to end synchronisatio
+        # send message to arduino to put off LED
         self._send_message_to_arduino("4")
-
 
     def _send_message_to_arduino(self, message):
         """
