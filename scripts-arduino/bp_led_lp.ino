@@ -15,9 +15,8 @@ int currenteState = 0;              // temp variable
 int button_pressed_counter;         // press running duration
 boolean button_was_pressed;         // previous state
 
-long previousMillis = 0; 
-long interval = 100;           // interval at which to blink (milliseconds)
-
+boolean serialReadTemp = false;
+boolean isSync = false;
 // ######## ENUM ########
 enum {
     EV_NONE=0,
@@ -30,7 +29,8 @@ enum {
     VAL_ON = 1,
     VAL_DESC = 2,
     VAL_SYNC = 3,
-    VAL_END_SYNC = 4
+    VAL_END_SYNC = 4,
+    VAL_WAIT_SYNC = 5
 };
 // ######## SETUP ########
 void setup() {
@@ -105,10 +105,23 @@ void syncArduino(){
     Serial.println(VAL_SYNC);
 }
 void turnBlink(){
-   for (int i=0; i <= 255; i++){
-      digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-      delay(100);               // wait for a second
-      digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-      delay(100);               // wait for a second
-   }
+    for (int i=0; i <= 255; i++){
+        if(!isSync){
+            if(serialReadTemp != VAL_END_SYNC){
+                int serialReadTemp = Serial.read();
+                
+                if (serialReadTemp == 52){
+                    isSync = true;
+                }
+                digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+                delay(100);               // wait for a second
+                digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+                delay(100);               // wait for a second
+            }
+        }
+        else{
+            Serial.println(VAL_END_SYNC);
+            break;  
+        }
+    }
 }
