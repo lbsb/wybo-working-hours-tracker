@@ -7,13 +7,12 @@ import time
 import logging
 import json
 import sys
-import thread
 import cPickle as pickle
 from user import User
 
 # User settings
-USER_FILE_LOCATION = "data/"
-USER_FILE_NAME = "user.json"
+DATA_FILE_LOCATION = "data/"
+DATA_FILE_NAME = "user.json"
 
 # Client serial port settings
 CLIENT_SERIAL_BAUDRATE = 9600
@@ -45,6 +44,8 @@ class Client(object):
 
         # init log folder
         self._init_log_folder()
+        # init data folder
+        self._init_data_folder()
         # init logger (console and file)
         self._logger = logging.getLogger(LOG_FILE_NAME)
         file_handler = logging.FileHandler(LOG_FILE_LOCATION + LOG_FILE_NAME + ".log")
@@ -75,7 +76,7 @@ class Client(object):
         user_file = None
         # open file
         try:
-            user_file = open(USER_FILE_LOCATION + USER_FILE_NAME)
+            user_file = open(DATA_FILE_LOCATION + DATA_FILE_NAME)
             # read file
             user_json = json.load(user_file)
             # set user information in current user
@@ -144,7 +145,7 @@ class Client(object):
             self._logger.debug("User information has been send from server (%s:%d)", SERVER_IP, SERVER_PORT)
             # receive uuid
             data_user_uuid = self._socket.recv(1024)
-            self._logger.debug("UUID : \"%s\" has been send from server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT )
+            self._logger.debug("UUID : \"%s\" has been send from server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
 
             # send confirmation to the server by sending the same user uuid
             self._socket.sendto(data_user_uuid, (SERVER_IP, SERVER_PORT))
@@ -160,12 +161,12 @@ class Client(object):
         """
 
         # save user settings in json file
-        with open(USER_FILE_LOCATION + USER_FILE_NAME, "w") as outfile:
+        with open(DATA_FILE_LOCATION + DATA_FILE_NAME, "w") as outfile:
             json.dump({
                 'uuid': user._uuid
             }, outfile, indent = 4, encoding = 'utf-8')
 
-        self._logger.debug("User settings has been saved in \"%s\"", (USER_FILE_LOCATION + USER_FILE_NAME))
+        self._logger.debug("User settings has been saved in \"%s\"", (DATA_FILE_LOCATION + DATA_FILE_NAME))
 
         # set user information in current user
         self._user = user
@@ -281,9 +282,18 @@ class Client(object):
 
     def _init_log_folder(self):
         """
-        Create data file if it doesn't exist
+        Create log folder if it doesn't exist
         """
 
         # create folder if it doesn't exist
         if not os.path.isdir(LOG_FILE_LOCATION):
             os.makedirs(LOG_FILE_LOCATION)
+
+    def _init_data_folder(self):
+        """
+        Create data folder if it doesn't exist
+        """
+
+        # create folder if it doesn't exist
+        if not os.path.isdir(DATA_FILE_LOCATION):
+            os.makedirs(DATA_FILE_LOCATION)
