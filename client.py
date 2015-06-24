@@ -105,6 +105,18 @@ class Client(object):
         else:
             self._logger.info("User creation failed. Please check your internet and serial connection. and retry")
 
+        # send end message to arduino to end synchronisatio
+        self._send_message_to_arduino("4")
+
+
+    def _send_message_to_arduino(self, message):
+        """
+        Send message to arduino
+        """
+
+        self._serial_port.write(message)
+        self._logger.debug("Message : \"%s\" has been sent to arduino", message)
+
     def _sync_user_settings(self, user):
         """
         Send user settings to server and get back a generated id
@@ -223,8 +235,10 @@ class Client(object):
                 sensor_status = self._serial_port.readline().replace('\r\n', '')
                 self._logger.debug("Message : \"%s\" has been received on serial port", sensor_status)
                 # send message to server only if protocol is respected
-                if re.compile("[0-9]{1}").match(sensor_status):
+                if re.compile("[0-1]{1}").match(sensor_status):
                     self._send_sensor_status_to_server(sensor_status)
+                elif re.compile("[3]{1}").match(sensor_status):
+                    self._init_user_settings()
 
             # handle disconnection
             except IOError, e:
