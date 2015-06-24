@@ -44,7 +44,11 @@ void setup() {
 // ######## LOOP ########
 void loop(){
     int eventResult = handle_button();
-
+    int serialReadTemp = Serial.read();
+    if(serialReadTemp == 51) //51 is Hexa symbol for 3
+    {
+        turnBlink();
+    }
     switch(eventResult){
         case EV_NONE:               // if nothing append
             //TODO : Ne rien faire de particulier, ou attendre la fin d'une synchronisation
