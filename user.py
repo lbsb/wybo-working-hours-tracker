@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class User(object):
     _id = None
     _first_name = None
