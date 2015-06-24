@@ -38,8 +38,7 @@ void loop(){
     switch(eventResult){
         case EV_NONE:               // if nothing append
             //TODO : Ne rien faire de particulier, ou attendre la fin d'une synchronisation
-            event = EV_LONGPRESS;
-            Serial.println("waiting for signal...");
+            
             break;
         case EV_SHORTPRESS:         // if short press
             //TODO : Allumer ou éteindre la LED (a check)
@@ -52,6 +51,7 @@ void loop(){
             break;
         case EV_LONGPRESS:          // if long press
             //TODO : Faire clignoter la LED et attendre la fin d'une synchronisation.
+            
             break;
     }
 
@@ -70,6 +70,7 @@ int handle_button(){
         else{
             event = EV_LONGPRESS;
             Serial.println(CONST_ID+":"+CONST_TYPE+":4");
+            
         }
     }
     else{
@@ -78,10 +79,9 @@ int handle_button(){
 
     if (button_now_pressed)
         ++button_pressed_counter;
-    else{
+    else 
         button_pressed_counter = 0; 
-    }
-
+        
     button_was_pressed = button_now_pressed;
     return event;
 }
