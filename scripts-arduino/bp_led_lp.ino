@@ -7,13 +7,16 @@ const String CONST_TYPE = "01";     // the id of press button
 // ######## DEF ########
 #define LONGPRESS_LEN    40         // Min nr of loops for a long press
 #define DELAY            20        // Delay per loop in ms
-
+#define DELAY_BLINK      50000
 // ######## VAR ########
 int buttonState = 0;                // variable for reading the pushbutton status
 int ledState = 0;                   // variable for the led state
 int currenteState = 0;              // temp variable
 int button_pressed_counter;         // press running duration
 boolean button_was_pressed;         // previous state
+
+long previousMillis = 0; 
+long interval = 100;           // interval at which to blink (milliseconds)
 
 // ######## ENUM ########
 enum {
@@ -22,13 +25,20 @@ enum {
     EV_LONGPRESS
 };
 
+enum {
+    VAL_OFF = 0,
+    VAL_ON = 1,
+    VAL_DESC = 2,
+    VAL_SYNC = 3,
+    VAL_END_SYNC = 4
+};
 // ######## SETUP ########
 void setup() {
     Serial.begin(9600);
     pinMode(LED_PIN, OUTPUT);          // initialize the LED pin as an output:
     pinMode(BUTTON_PIN, INPUT);        // initialize the pushbutton pin as an input:
-    button_was_pressed = false;       // initialize the pushbutton to false (not pressed)
-    button_pressed_counter = 0;       // initialize the pusbutton counter
+    button_was_pressed = false;        // initialize the pushbutton to false (not pressed)
+    button_pressed_counter = 0;        // initialize the pusbutton counter
 }
 
 // ######## LOOP ########
@@ -42,16 +52,15 @@ void loop(){
             break;
         case EV_SHORTPRESS:         // if short press
             //TODO : Allumer ou éteindre la LED (a check)
-            if(digitalRead(LED_PIN) == HIGH){
+            if(digitalRead(LED_PIN) == HIGH)
                     turnOff();
-            }
-            else{
+            else
                     turnOn();
-            }
             break;
         case EV_LONGPRESS:          // if long press
             //TODO : Faire clignoter la LED et attendre la fin d'une synchronisation.
-            Serial.println(CONST_ID+":"+CONST_TYPE+":4");
+            syncArduino();
+            turnBlink();
             break;
     }
     delay(DELAY);
@@ -84,11 +93,22 @@ int handle_button(){
 // turn LED on:
 void turnOn(){
     digitalWrite(LED_PIN, HIGH);
-    Serial.println(CONST_ID+":"+CONST_TYPE+":1");
+    Serial.println(VAL_ON);
 }
 
 // turn LED Off:
 void turnOff(){
     digitalWrite(LED_PIN, LOW);
-    Serial.println(CONST_ID+":"+CONST_TYPE+":0");
+    Serial.println(VAL_OFF);
+}
+void syncArduino(){
+    Serial.println(VAL_SYNC);
+}
+void turnBlink(){
+   for (int i=0; i <= 255; i++){
+      digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+      delay(100);               // wait for a second
+      digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+      delay(100);               // wait for a second
+   }
 }
