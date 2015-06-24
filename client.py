@@ -12,7 +12,7 @@ import cPickle as pickle
 from user import User
 
 # User settings
-USER_FILE_LOCATION = "user/"
+USER_FILE_LOCATION = "data/"
 USER_FILE_NAME = "user.json"
 
 # Client serial port settings
