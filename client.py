@@ -39,6 +39,7 @@ CODE_STOP_WORKING = 1
 CODE_DISCONNECTED = 2
 CODE_AUTHENTIFICATION = 3
 
+
 class Client(object):
     _serial_port = None
     _socket = None
@@ -269,8 +270,7 @@ class Client(object):
                 self._serial_port.close()
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
-                self._sync_working_state(str(CODE_DISCONNECTED))
-
+                self._send_message_to_server(str(CODE_DISCONNECTED))
                 self._logger.debug("Disconnected status has been sent to the server")
                 self._reconnect_serial_port()
 
