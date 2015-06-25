@@ -11,6 +11,8 @@ import sys
 import cPickle as pickle
 from user import User
 
+APP_NAME = "WyboClient"
+
 # User settings
 DATA_FILE_LOCATION = "data/"
 DATA_FILE_NAME = "user.json"
@@ -48,7 +50,7 @@ class Client(object):
         # init data folder
         self._init_data_folder()
         # init logger (console and file)
-        self._logger = logging.getLogger(LOG_FILE_NAME)
+        self._logger = logging.getLogger(APP_NAME)
         file_handler = logging.FileHandler(LOG_FILE_LOCATION + LOG_FILE_NAME + ".log")
         console_handler = logging.StreamHandler()
         file_handler.setLevel(logging.DEBUG)
@@ -196,15 +198,14 @@ class Client(object):
         Init serial port
         """
 
-        self._logger.info("Arduino disconnected. Please connect it on USB port : %s", CLIENT_SERIAL_PORT)
         while self._serial_port == None:
             try:
                 self._serial_port = serial.Serial(port = CLIENT_SERIAL_PORT, baudrate = CLIENT_SERIAL_BAUDRATE)
                 self._logger.info("Arduino connected")
             except OSError as msg:
-                self._logger.debug("Connection failed : %s", msg)
+                pass
             except serial.SerialException as msg:
-                self._logger.debug("Connection failed : %s", msg)
+                pass
             finally:
                 # short delay between 2 tentatives
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
@@ -217,6 +218,7 @@ class Client(object):
         Reconnect serial port
         """
 
+        self._logger.info("Arduino seems to be disconnected. Please check your USB connection.")
         while not self._serial_port.isOpen():
             try:
                 self._logger.debug("Try to reconnect serial port")
@@ -225,9 +227,9 @@ class Client(object):
                 self._logger.info("Arduino reconnected")
                 self._send_message_to_server("0")
             except OSError as msg:
-                self._logger.debug("Reconnection failed : %s", msg)
+                pass
             except serial.SerialException as msg:
-                self._logger.debug("Reconnection failed : %s", msg)
+                pass
             finally:
                 # short delay between 2 tentatives
                 time.sleep(CLIENT_SERIAL_RECONNECTION_DELAY)
@@ -253,8 +255,6 @@ class Client(object):
 
             # handle disconnection
             except IOError:
-                self._logger.info("Arduino disconnected")
-                self._logger.debug("Arduino seems to be disconnected. Impossible to received and send messages. Please check your serial connection.")
                 self._serial_port.close()
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
