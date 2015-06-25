@@ -198,6 +198,7 @@ class Client(object):
         Init serial port
         """
 
+        self._logger.info("Arduino seems to be disconnected. Please check your USB connection.")
         while self._serial_port == None:
             try:
                 self._serial_port = serial.Serial(port = CLIENT_SERIAL_PORT, baudrate = CLIENT_SERIAL_BAUDRATE)
@@ -219,9 +220,9 @@ class Client(object):
         """
 
         self._logger.info("Arduino seems to be disconnected. Please check your USB connection.")
+        self._logger.debug("Trying to reconnect serial port...")
         while not self._serial_port.isOpen():
             try:
-                self._logger.debug("Try to reconnect serial port")
                 # try to reconnect
                 self._serial_port.open()
                 self._logger.info("Arduino reconnected")
