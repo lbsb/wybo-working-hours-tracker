@@ -33,6 +33,11 @@ SERVER_PING_DELAY = 3
 LOG_FILE_LOCATION = "log/"
 LOG_FILE_NAME = "client"
 
+# Protocol code
+CODE_START_WORKING = 0
+CODE_STOP_WORKING = 1
+CODE_DISCONNECTED = 2
+CODE_AUTHENTIFICATION = 3
 
 class Client(object):
     _serial_port = None
@@ -226,7 +231,7 @@ class Client(object):
                 # try to reconnect
                 self._serial_port.open()
                 self._logger.info("Arduino reconnected")
-                self._sync_working_state("0")
+                self._sync_working_state(CODE_START_WORKING)
             except OSError as msg:
                 pass
             except serial.SerialException as msg:
@@ -249,9 +254,9 @@ class Client(object):
                 sensor_status = self._serial_port.readline().replace('\r\n', '')
                 self._logger.debug("Sensor status : \"%s\" has been received on serial port", sensor_status)
                 # analyze message to redirect to the right function
-                if re.compile("[0-1]{1}").match(sensor_status):
+                if re.compile("^[" + str(CODE_START_WORKING) + "|" + str(CODE_STOP_WORKING) + "]{1}$").match(sensor_status):
                     self._sync_working_state(sensor_status)
-                elif re.compile("[3]{1}").match(sensor_status):
+                elif re.compile("^[" + str(CODE_AUTHENTIFICATION) + "]{1}$").match(sensor_status):
                     self._login_user()
 
             # handle disconnection
@@ -259,7 +264,7 @@ class Client(object):
                 self._serial_port.close()
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
-                self._sync_working_state("2")
+                self._sync_working_state(CODE_STOP_WORKING)
                 self._logger.debug("Disconnected status has been sent to the server")
                 self._reconnect_serial_port()
 
@@ -274,14 +279,15 @@ class Client(object):
         # received confirmation from server
         sensor_status, addr = self._socket.recvfrom(1024)
 
-        if re.compile("^(0|1|2){1}$").match(sensor_status):
+        if re.compile("^(" + str(CODE_START_WORKING) + "|" + str(CODE_STOP_WORKING) + "|" + str(CODE_DISCONNECTED) + "){1}$").match(sensor_status):
             self._logger.debug("Confirmation received from server (%s:%d)", SERVER_IP, SERVER_PORT)
-            if sensor_status != "2":
+            if int(sensor_status) != CODE_DISCONNECTED:
                 # send confirmation to arduino
                 self._send_message_to_arduino(sensor_status)
 
         # server asked client authentification
-        elif sensor_status == "3":
+        elif int(sensor_status) == CODE_AUTHENTIFICATION:
+            self._logger.info("Unknow user. Authentification asked from server")
             self._logger.debug("Unknow UUID. Authentification asked from server (%s:%d)", SERVER_IP, SERVER_PORT)
             self._login_user()
 
