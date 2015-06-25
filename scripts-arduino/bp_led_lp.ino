@@ -6,7 +6,7 @@ const String CONST_TYPE = "01";     // the id of press button
 
 // ######## DEF ########
 #define LONGPRESS_LEN    40         // Min nr of loops for a long press
-#define DELAY            20        // Delay per loop in ms
+#define DELAY            20         // Delay per loop in ms
 #define DELAY_BLINK      50000
 // ######## VAR ########
 int buttonState = 0;                // variable for reading the pushbutton status
@@ -45,9 +45,13 @@ void setup() {
 void loop(){
     int eventResult = handle_button();
     int serialReadTemp = Serial.read();
-    if(serialReadTemp == 51) //51 is Hexa symbol for 3
+    if(serialReadTemp == 51)            // 51 is Hexa symbol for 3
     {
         turnBlink();
+    }
+    else if(serialReadTemp == 48)       // 48 is Hexa symbol for 0
+    {
+      turnOff();                
     }
     switch(eventResult){
         case EV_NONE:               // if nothing append
@@ -114,13 +118,13 @@ void turnBlink(){
             if(serialReadTemp != VAL_END_SYNC){
                 int serialReadTemp = Serial.read();
                 
-                if (serialReadTemp == 52){
+                if (serialReadTemp == 52){      // 52 is Hexa Symbol for 4
                     isSync = true;
                 }
-                digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-                delay(100);               // wait for a second
-                digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-                delay(100);               // wait for a second
+                digitalWrite(LED_PIN, HIGH);    // turn the LED on
+                delay(100);                     // wait for a second
+                digitalWrite(LED_PIN, LOW);     // turn the LED off
+                delay(100);                     // wait for a second
             }
         }
         else{
