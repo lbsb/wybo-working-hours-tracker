@@ -226,7 +226,7 @@ class Client(object):
                 # try to reconnect
                 self._serial_port.open()
                 self._logger.info("Arduino reconnected")
-                self._send_message_to_server("0")
+                self._sync_working_state("0")
             except OSError as msg:
                 pass
             except serial.SerialException as msg:
@@ -259,7 +259,7 @@ class Client(object):
                 self._serial_port.close()
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
-                self._send_message_to_server("2")
+                self._sync_working_state("2")
                 self._logger.debug("Disconnected status has been sent to the server")
                 self._reconnect_serial_port()
 
@@ -276,8 +276,10 @@ class Client(object):
 
         if re.compile("^(0|1|2){1}$").match(sensor_status):
             self._logger.debug("Confirmation received from server (%s:%d)", SERVER_IP, SERVER_PORT)
-            # send confirmation to arduino
-            self._send_message_to_arduino(sensor_status)
+            if sensor_status != "2":
+                # send confirmation to arduino
+                self._send_message_to_arduino(sensor_status)
+
         # server asked client authentification
         elif sensor_status == "3":
             self._logger.debug("Unknow UUID. Authentification asked from server (%s:%d)", SERVER_IP, SERVER_PORT)
