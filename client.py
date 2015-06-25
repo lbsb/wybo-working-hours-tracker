@@ -230,8 +230,8 @@ class Client(object):
             try:
                 # try to reconnect
                 self._serial_port.open()
-                self._logger.info("Arduino reconnected")
-                self._sync_working_state(CODE_START_WORKING)
+                self._logger.info("Arduino connected")
+                self._sync_working_state(str(CODE_START_WORKING))
             except OSError as msg:
                 pass
             except serial.SerialException as msg:
@@ -264,29 +264,30 @@ class Client(object):
                 self._serial_port.close()
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
-                self._sync_working_state(CODE_STOP_WORKING)
+                self._sync_working_state(str(CODE_DISCONNECTED))
+
                 self._logger.debug("Disconnected status has been sent to the server")
                 self._reconnect_serial_port()
 
-    def _sync_working_state(self, sensor_status):
+    def _sync_working_state(self, working_state):
         """
         Synchronize sensor status between arduino and server
-        :param sensor_status:
+        :param working_state:
         :return:
         """
 
-        self._send_message_to_server(sensor_status)
+        self._send_message_to_server(working_state)
         # received confirmation from server
-        sensor_status, addr = self._socket.recvfrom(1024)
+        confirmation, addr = self._socket.recvfrom(1024)
 
-        if re.compile("^(" + str(CODE_START_WORKING) + "|" + str(CODE_STOP_WORKING) + "|" + str(CODE_DISCONNECTED) + "){1}$").match(sensor_status):
+        if re.compile("^(" + str(CODE_START_WORKING) + "|" + str(CODE_STOP_WORKING) + "|" + str(CODE_DISCONNECTED) + "){1}$").match(confirmation):
             self._logger.debug("Confirmation received from server (%s:%d)", SERVER_IP, SERVER_PORT)
-            if int(sensor_status) != CODE_DISCONNECTED:
+            if int(confirmation) != CODE_DISCONNECTED:
                 # send confirmation to arduino
-                self._send_message_to_arduino(sensor_status)
+                self._send_message_to_arduino(confirmation)
 
         # server asked client authentification
-        elif int(sensor_status) == CODE_AUTHENTIFICATION:
+        elif int(confirmation) == CODE_AUTHENTIFICATION:
             self._logger.info("Unknow user. Authentification asked from server")
             self._logger.debug("Unknow UUID. Authentification asked from server (%s:%d)", SERVER_IP, SERVER_PORT)
             self._login_user()
