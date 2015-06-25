@@ -126,15 +126,15 @@ class Client(object):
         # sync user settings and get back generated id
         user._uuid = self._sync_user_settings(user)
         # save user settings
-        if user._uuid != "":
-            self._save_user_settings(user)
-            self._logger.info("Login successful")
+        if user._uuid == 0:
+            self._logger.info("Login failed. Please check your internet and/or serial connection and retry")
+            self._login_user()
         elif user._uuid == "":
             self._logger.info("Login failed")
             self._login_user()
-        elif user._uuid == 0:
-            self._logger.info("Login failed. Please check your internet and/or serial connection and retry")
-            self._login_user()
+        elif re.compile("[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}").match(user._uuid):
+            self._save_user_settings(user)
+            self._logger.info("Login successful")
 
         # send message to arduino to put off LED
         self._send_message_to_arduino("4")
@@ -158,12 +158,16 @@ class Client(object):
         self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
         self._logger.debug("Message : \"%s\" has been sent to server (%s:%d)", message, SERVER_IP, SERVER_PORT)
 
+        # init uiser UUID
+        user_uuid = "None"
         # received user_uuid
-        user_uuid, addr = self._socket.recvfrom(1024)
-        # format data
-        user_uuid.replace("\n", "")
+        try:
+            user_uuid, addr = self._socket.recvfrom(1024)
+            user_uuid.replace("\n", "")
+        except socket.timeout as msg:
+            self._logger.debug("UUID not received from server (%s:%d)", SERVER_IP, SERVER_PORT)
 
-        if re.compile("[0-9a-zA-Z\-]+").match(user_uuid):
+        if re.compile("[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}").match(user_uuid):
             self._logger.debug("valid UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
             return user_uuid
         elif user_uuid == "":
@@ -195,6 +199,7 @@ class Client(object):
 
         try:
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self._socket.settimeout(10)
         except socket.error as msg:
             self._logger.debug("Can't init socket : %s", msg)
 
@@ -278,7 +283,12 @@ class Client(object):
 
         self._send_message_to_server(working_state)
         # received confirmation from server
-        confirmation, addr = self._socket.recvfrom(1024)
+        confirmation = "-1"
+        try:
+            confirmation, addr = self._socket.recvfrom(1024)
+        except socket.timeout as msg:
+            self._logger.info("Server seems to be unreachable. Please check your internet connection and retry")
+            self._logger.debug("Confirmation not received from server (%s:%d)", SERVER_IP, SERVER_PORT)
 
         if re.compile("^(" + str(CODE_START_WORKING) + "|" + str(CODE_STOP_WORKING) + "|" + str(CODE_DISCONNECTED) + "){1}$").match(confirmation):
             self._logger.debug("Confirmation received from server (%s:%d)", SERVER_IP, SERVER_PORT)
