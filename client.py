@@ -90,15 +90,12 @@ class Client(object):
         :return:
         """
 
-        user_file = None
-        # open file
         try:
-            user_file = open(DATA_FILE_LOCATION + DATA_FILE_NAME)
-            # read file
-            user_json = json.load(user_file)
+            with open(DATA_FILE_LOCATION + DATA_FILE_NAME) as file:
+                user = json.load(file)
             # set user information in current user
             self._user = User()
-            self._user._uuid = user_json["uuid"]
+            self._user._uuid = user["uuid"]
         except IOError:
             while not self._is_user_logged():
                 self._login_user()
@@ -226,7 +223,7 @@ class Client(object):
                 # try to reconnect
                 self._serial_port.open()
                 self._logger.info("Arduino reconnected")
-                self._send_sensor_status_to_server("0")
+                self._send_message_to_server("0")
             except OSError as msg:
                 self._logger.debug("Reconnection failed : %s", msg)
             except serial.SerialException as msg:
@@ -237,11 +234,8 @@ class Client(object):
 
     def start(self):
         """
-        Receive data on serial port and send it on UDP to the server
-        (protocol : XX:XX:X)
-        XX: sensor id
-        YY: sensor type
-        Z : sensor value
+        Receive data on serial port and send it by UDP to the server
+
         """
 
         self._logger.debug("Listening on serial port : %s", CLIENT_SERIAL_PORT)
@@ -250,34 +244,54 @@ class Client(object):
             try:
                 # get the sensor status on serial port
                 sensor_status = self._serial_port.readline().replace('\r\n', '')
-                self._logger.debug("Message : \"%s\" has been received on serial port", sensor_status)
-                # send message to server only if protocol is respected
+                self._logger.debug("Sensor status : \"%s\" has been received on serial port", sensor_status)
+                # analyze message to redirect to the right function
                 if re.compile("[0-1]{1}").match(sensor_status):
-                    self._send_sensor_status_to_server(sensor_status)
+                    self._sync_working_state(sensor_status)
                 elif re.compile("[3]{1}").match(sensor_status):
                     self._login_user()
 
             # handle disconnection
-            except IOError, e:
+            except IOError:
                 self._logger.info("Arduino disconnected")
                 self._logger.debug("Arduino seems to be disconnected. Impossible to received and send messages. Please check your serial connection.")
                 self._serial_port.close()
                 self._logger.debug("Serial port : \"%s\" has been closed", CLIENT_SERIAL_PORT)
                 # send last message if the sensor is disconnected
-                self._send_sensor_status_to_server("2")
+                self._send_message_to_server("2")
                 self._logger.debug("Disconnected status has been sent to the server")
                 self._reconnect_serial_port()
 
-    def _send_sensor_status_to_server(self, sensor_value):
+    def _sync_working_state(self, sensor_status):
         """
-        Send sensor status to server (protocol : uuid:sensor_value)
-        :param sensor_value:
+        Synchronize sensor status between arduino and server
+        :param sensor_status:
+        :return:
+        """
+
+        self._send_message_to_server(sensor_status)
+        # received confirmation from server
+        sensor_status, addr = self._socket.recvfrom(1024)
+
+        if re.compile("^(0|1|2){1}$").match(sensor_status):
+            self._logger.debug("Confirmation received from server (%s:%d)", SERVER_IP, SERVER_PORT)
+            # send confirmation to arduino
+            self._send_message_to_arduino(sensor_status)
+        # server asked client authentification
+        elif sensor_status == "3":
+            self._logger.debug("Unknow UUID. Authentification asked from server (%s:%d)", SERVER_IP, SERVER_PORT)
+            self._login_user()
+
+    def _send_message_to_server(self, working_state):
+        """
+        Send working state to server (protocol : uuid:working_state)
+        :param working_state: sensor value (0, 1 or 2)
         """
 
         # concat uuid with sensor value to be identified on server
-        data_sensor = self._user._uuid + ":" + sensor_value
-        self._socket.sendto(data_sensor, (SERVER_IP, SERVER_PORT))
-        self._logger.debug("message : \"%s\" has been sent to %s:%d", data_sensor, SERVER_IP, SERVER_PORT)
+        message = self._user._uuid + ":" + working_state
+        self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
+        self._logger.debug("Message : \"%s\" has been sent to server (%s:%d)", message, SERVER_IP, SERVER_PORT)
 
     def _check_server_connection(self):
         """
