@@ -17,7 +17,7 @@ DATA_FILE_NAME = "user.json"
 
 # Client serial port settings
 CLIENT_SERIAL_BAUDRATE = 9600
-CLIENT_SERIAL_PORT = "/dev/cu.usbmodem2041"
+CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
 # waiting time between 2 tentatives of reconnection
 CLIENT_SERIAL_RECONNECTION_DELAY = 1
 
@@ -83,7 +83,6 @@ class Client(object):
         except IOError:
             return False
 
-
     def _read_user_settings(self):
         """
         Get user settings from file (JSON)
@@ -128,8 +127,10 @@ class Client(object):
             self._logger.info("Login successful")
         elif user._uuid == "":
             self._logger.info("Login failed")
+            self._login_user()
         elif user._uuid == 0:
             self._logger.info("Login failed. Please check your internet and/or serial connection and retry")
+            self._login_user()
 
         # send message to arduino to put off LED
         self._send_message_to_arduino("4")
@@ -147,32 +148,23 @@ class Client(object):
         Send user settings to server and get back a generated id
         """
 
-        self._logger.debug("Login in waiting...")
-        # send init protocol
-        self._socket.sendto("3", (SERVER_IP, SERVER_PORT))
-        self._logger.debug("Message : \"3\" has been sent to server (%s:%d)", SERVER_IP, SERVER_PORT)
+        self._logger.debug("Sending credentials to server...")
+        # send user credentials
+        message = user._email + ":" + user._password + ":3"
+        self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
+        self._logger.debug("Message : \"%s\" has been sent to server (%s:%d)", message, SERVER_IP, SERVER_PORT)
 
-        # wait response from server
-        data = self._socket.recv(1024)
-        self._logger.debug("Message : \"%s\" has been received from server (%s:%d)", data, SERVER_IP, SERVER_PORT)
+        # received user_uuid
+        user_uuid, addr = self._socket.recvfrom(1024)
+        # format data
+        user_uuid.replace("\n", "")
 
-        if re.compile("3").match(data.replace("\n", "")):
-            # serialize user object
-            data_user = pickle.dumps(user, -1)
-            # send user to server
-            self._socket.sendto(data_user, (SERVER_IP, SERVER_PORT))
-            self._logger.debug("User information has been send from server (%s:%d)", SERVER_IP, SERVER_PORT)
-
-            # receive uuid
-            data_user_uuid = self._socket.recv(1024)
-            self._logger.debug("UUID : \"%s\" has been send from server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
-
-            if data_user_uuid != "":
-                # send confirmation to the server by sending the same user uuid
-                self._socket.sendto(data_user_uuid, (SERVER_IP, SERVER_PORT))
-                self._logger.debug("Confirmation id : \"%s\" sent to server (%s:%d)", data_user_uuid, SERVER_IP, SERVER_PORT)
-
-            return data_user_uuid
+        if re.compile("[0-9a-zA-Z\-]+").match(user_uuid):
+            self._logger.debug("valid UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
+            return user_uuid
+        elif user_uuid == "":
+            self._logger.debug("empty UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
+            return ""
 
         return 0
 
