@@ -53,21 +53,10 @@ class Client(object):
 
         # init log folder
         self._init_log_folder()
+        # init logger (console and file)
+        self._init_logger()
         # init data folder
         self._init_data_folder()
-        # init logger (console and file)
-        self._logger = logging.getLogger(APP_NAME)
-        file_handler = logging.FileHandler(LOG_FILE_LOCATION + LOG_FILE_NAME + ".log")
-        console_handler = logging.StreamHandler()
-        file_handler.setLevel(logging.DEBUG)
-        console_handler.setLevel(logging.INFO)
-        logger_formatter = logging.Formatter("%(asctime)s - %(name)s - "
-                                             "%(levelname)s - %(message)s", "%m/%d/%Y %I:%M:%S %p")
-        file_handler.setFormatter(logger_formatter)
-        console_handler.setFormatter(logger_formatter)
-        self._logger.addHandler(file_handler)
-        self._logger.addHandler(console_handler)
-        self._logger.setLevel(logging.DEBUG)
         # init socket connection
         self._init_socket()
         # init serial connection
@@ -91,10 +80,27 @@ class Client(object):
         except IOError:
             return False
 
+    def _init_logger(self):
+        """
+        Init logger
+        """
+
+        self._logger = logging.getLogger(APP_NAME)
+        file_handler = logging.FileHandler(LOG_FILE_LOCATION + LOG_FILE_NAME + ".log")
+        console_handler = logging.StreamHandler()
+        file_handler.setLevel(logging.DEBUG)
+        console_handler.setLevel(logging.INFO)
+        logger_formatter = logging.Formatter("%(asctime)s - %(name)s - "
+                                             "%(levelname)s - %(message)s", "%m/%d/%Y %I:%M:%S %p")
+        file_handler.setFormatter(logger_formatter)
+        console_handler.setFormatter(logger_formatter)
+        self._logger.addHandler(file_handler)
+        self._logger.addHandler(console_handler)
+        self._logger.setLevel(logging.DEBUG)
+
     def _read_user_settings(self):
         """
         Get user settings from file (JSON)
-        :param path:
         :return:
         """
 
@@ -143,6 +149,7 @@ class Client(object):
     def _send_message_to_arduino(self, message):
         """
         Send message to arduino
+        :param message:
         """
 
         self._serial_port.write(message)
@@ -151,6 +158,8 @@ class Client(object):
     def _sync_user_settings(self, user):
         """
         Send user settings to server and get back a generated id
+        :param user:
+        :return:
         """
 
         self._logger.debug("Sending credentials to server...")
@@ -180,6 +189,7 @@ class Client(object):
     def _save_user_settings(self, user):
         """
         Save user settings in JSON file
+        :param user:
         """
 
         # save user settings in json file
@@ -249,7 +259,6 @@ class Client(object):
     def start(self):
         """
         Receive data on serial port and send it by UDP to the server
-
         """
 
         self._logger.debug("Listening on serial port : %s", CLIENT_SERIAL_PORT)
@@ -276,7 +285,7 @@ class Client(object):
 
     def _sync_working_state(self, working_state):
         """
-        Synchronize sensor status between arduino and server
+        Synchronize working state between arduino and server
         :param working_state:
         :return:
         """
@@ -304,8 +313,8 @@ class Client(object):
 
     def _send_message_to_server(self, working_state):
         """
-        Send working state to server (protocol : uuid:working_state)
-        :param working_state: sensor value (0, 1 or 2)
+        Send message to server (protocol : uuid:working_state)
+        :param working_state:
         """
 
         # concat uuid with sensor value to be identified on server
