@@ -24,7 +24,7 @@ CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
 CLIENT_SERIAL_RECONNECTION_DELAY = 1
 
 # Server settings
-SERVER_IP = "127.0.0.1"
+SERVER_IP = "172.16.104.31"
 SERVER_PORT = 9003
 # Delay between 2 pings
 SERVER_PING_DELAY = 3
@@ -136,7 +136,7 @@ class Client(object):
         if user._uuid == 0:
             self._logger.info("Login failed. Please check your internet and/or serial connection and retry")
             self._login_user()
-        elif user._uuid == "":
+        elif user._uuid == "none":
             self._logger.info("Login failed")
             self._login_user()
         elif re.compile("[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}").match(user._uuid):
@@ -169,22 +169,24 @@ class Client(object):
         self._logger.debug("Message : \"%s\" has been sent to server (%s:%d)", message, SERVER_IP, SERVER_PORT)
 
         # init uiser UUID
-        user_uuid = "None"
+        user_uuid = ""
         # received user_uuid
         try:
             user_uuid, addr = self._socket.recvfrom(1024)
             user_uuid.replace("\n", "")
+
         except socket.timeout as msg:
             self._logger.debug("UUID not received from server (%s:%d)", SERVER_IP, SERVER_PORT)
+            user_uuid = ""
 
-        if re.compile("[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}").match(user_uuid):
+        if re.compile("[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}$").match(user_uuid):
             self._logger.debug("valid UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
             return user_uuid
-        elif user_uuid == "":
+        elif user_uuid == "none":
             self._logger.debug("empty UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
-            return ""
-
-        return 0
+            return "none"
+        else:
+            return 0
 
     def _save_user_settings(self, user):
         """
