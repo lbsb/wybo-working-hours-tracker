@@ -1,44 +1,61 @@
 <div class="row container-fluid">
+   <!--
     <div class="col-lg-3 col-lg-offset-1 ">
         <div class="bootcards-list">
             <div class="panel panel-default">
                 <div class="list-group">
-                    <a class="list-group-item" href="#">
-                        <img src="assets/images/samir.jpeg" class="img-rounded pull-left"/>
-                        <h4 class="list-group-item-heading">Samir Bouaked<span class="label label-success" style="float:right; margin-right:20px;">Online</span></h4>
-                        <p class="list-group-item-text">Connecté le 23 juin 2015</p>
-                    </a>
-                    <a class="list-group-item" href="#">
-                        <img src="assets/images/louis.jpeg" class="img-rounded pull-left"/>
-                        <h4 class="list-group-item-heading">Louis Barranqueiro<span class="label label-danger" style="float:right; margin-right:20px;">Offline</span></h4>
-                        <p class="list-group-item-text">Connecté le 23 juin 2015</p>
+                    <a  class="list-group-item" href="liste/#{{user.uuid}}" ng-repeat="user in users">
+                        <h4 class="list-group-item-heading">{{user.firstName + " " + user.lastName}}
+                            <span class="label label-success" style="float:right; margin-right:20px;"></span>
+                        </h4>
+                        <p class="list-group-item-text">{{user.email}}</p>
+                        <p class="list-group-item-text">{{user.uuid}}</p>
                     </a>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="col-lg-6">
+    -->
+    <div class="col-lg-6 ">
         <div class="panel panel-default">
-            <div class="table-responsive">
+            <div class="table-responsive" ng-controller="DetailCtrl">
                 <table class="table table-hover">
                     <thead>
-                    <tr class="active"><th>Id</th><th>IP</th><th>Date Debut</th><th>Date Fin</th><th>Temps</th></tr>
+                    <tr class="active"><th>ID</th><th>uuid</th><th>Prénom/Nom</th><th>email</th></tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="item in items">
-                            <td>{{item.id}}</td>
-                            <td>{{item.ip}}</td>
-                            <td>{{item.dateDebut}}</td>
-                            <td>{{item.dateFin}}</td>
-                            <td>{{item.temps}}</td>
-
+                        <tr ng-repeat="user in users">
+                            <td>{{user.id }}</td>
+                            <td>{{user.uuid }}</td>
+                            <td>{{user.firstName +" "+user.lastName}}</td>
+                            <td>{{user.email}}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="panel-footer">
-                <small>Historique</small>
+                <small>Utilisateurs</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 ">
+        <div class="panel panel-default">
+            <div class="table-responsive" ng-controller="DetailCtrl">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="active"><th>Date Début</th><th>Date Fin</th><th>Temps Travaillé</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="detail in details.workingHours">
+                        <td>{{detail.startDatetime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{detail.endDatetime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{detail.workingTime | date:'ss'}} secondes</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                <small>Logs de connexion</small>
             </div>
         </div>
     </div>
