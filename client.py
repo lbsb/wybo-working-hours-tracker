@@ -186,7 +186,7 @@ class Client(object):
             self._logger.debug("empty UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
             return "none"
         else:
-            return 0
+            return
 
     def _save_user_settings(self, user):
         """
@@ -321,8 +321,11 @@ class Client(object):
 
         # concat uuid with sensor value to be identified on server
         message = self._user._uuid + ":" + working_state
-        self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
-        self._logger.debug("Message : \"%s\" has been sent to server (%s:%d)", message, SERVER_IP, SERVER_PORT)
+        try:
+            self._socket.sendto(message, (SERVER_IP, SERVER_PORT))
+            self._logger.debug("Message : \"%s\" has been sent to server (%s:%d)", message, SERVER_IP, SERVER_PORT)
+        except socket.error as msg:
+            self._logger.debug("Server is unreachable. Please check your internet connection")
 
     def _check_server_connection(self):
         """
