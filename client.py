@@ -19,12 +19,13 @@ DATA_FILE_NAME = "user.json"
 
 # Client serial port settings
 CLIENT_SERIAL_BAUDRATE = 9600
-CLIENT_SERIAL_PORT = "/dev/cu.usbmodemfd121"
+# enter your USB interface
+CLIENT_SERIAL_PORT = ""
 # waiting time between 2 tentatives of reconnection
 CLIENT_SERIAL_RECONNECTION_DELAY = 1
 
 # Server settings
-SERVER_IP = "172.16.104.31"
+SERVER_IP = "127.0.0.1"
 SERVER_PORT = 9003
 # Delay between 2 pings
 SERVER_PING_DELAY = 3
