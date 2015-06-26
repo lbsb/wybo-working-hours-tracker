@@ -186,7 +186,7 @@ class Client(object):
             self._logger.debug("empty UUID (%s) has been received from server (%s:%d)", user_uuid, SERVER_IP, SERVER_PORT)
             return "none"
         else:
-            return
+            return 0
 
     def _save_user_settings(self, user):
         """
