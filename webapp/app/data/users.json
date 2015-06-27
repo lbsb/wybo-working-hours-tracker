@@ -1,0 +1,34 @@
+[
+  {
+    "uuid": "5def0725-6007-5070-937e-7e18ce831851",
+    "firstName": "test",
+    "lastName": "bouaked",
+    "email": "samir.bouaked@gmail.com",
+    "password": "d9eb3b3bfe72d2d779fa945dc2742404833075b323616dea794d7ef06e2d30f7",
+    "id": 1
+  },
+  {
+    "uuid": "5def0725-6007-5070-937e-7e18ce831851",
+    "firstName": "samir",
+    "lastName": "bouaked",
+    "email": "samir.bouaked@gmail.com",
+    "password": "d9eb3b3bfe72d2d779fa945dc2742404833075b323616dea794d7ef06e2d30f7",
+    "id": 4
+  },
+  {
+    "uuid": "5def0725-6007-5070-937e-7e18ce831851",
+    "firstName": "samir",
+    "lastName": "bouaked",
+    "email": "samir.bouaked@gmail.com",
+    "password": "d9eb3b3bfe72d2d779fa945dc2742404833075b323616dea794d7ef06e2d30f7",
+    "id": 5
+  },
+  {
+    "uuid": "5def0725-6007-5070-937e-7e18ce831851",
+    "firstName": "test",
+    "lastName": "bouaked",
+    "email": "samir.bouaked@gmail.com",
+    "password": "d9eb3b3bfe72d2d779fa945dc2742404833075b323616dea794d7ef06e2d30f7",
+    "id": 6
+  }
+]

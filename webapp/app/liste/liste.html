@@ -1,0 +1,62 @@
+<div class="row container-fluid">
+   <!--
+    <div class="col-lg-3 col-lg-offset-1 ">
+        <div class="bootcards-list">
+            <div class="panel panel-default">
+                <div class="list-group">
+                    <a  class="list-group-item" href="liste/#{{user.uuid}}" ng-repeat="user in users">
+                        <h4 class="list-group-item-heading">{{user.firstName + " " + user.lastName}}
+                            <span class="label label-success" style="float:right; margin-right:20px;"></span>
+                        </h4>
+                        <p class="list-group-item-text">{{user.email}}</p>
+                        <p class="list-group-item-text">{{user.uuid}}</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
+    <div class="col-lg-6 ">
+        <div class="panel panel-default">
+            <div class="table-responsive" ng-controller="DetailCtrl">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="active"><th>ID</th><th>uuid</th><th>Prénom/Nom</th><th>email</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="user in users">
+                            <td>{{user.id }}</td>
+                            <td>{{user.uuid }}</td>
+                            <td>{{user.firstName +" "+user.lastName}}</td>
+                            <td>{{user.email}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                <small>Utilisateurs</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 ">
+        <div class="panel panel-default">
+            <div class="table-responsive" ng-controller="DetailCtrl">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="active"><th>Date Début</th><th>Date Fin</th><th>Temps Travaillé</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="detail in details.workingHours">
+                        <td>{{detail.startDatetime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{detail.endDatetime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{detail.workingTime | date:'ss'}} secondes</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                <small>Logs de connexion</small>
+            </div>
+        </div>
+    </div>
+</div>
